@@ -1,17 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 
 import CartIcon from "../Cart/CartIcon";
+import ModalCart from "../UI/ModalCart";
 import classes from "./HeaderCartButton.module.css";
 
 const HeaderCartButton = (props) => {
+  const [showingCart, setShowingCart] = useState(false);
+
+  const closeCartHandler = () => {
+    setShowingCart(false);
+  };
+
+  const clickCartButtonHandler = () => {
+    setShowingCart(true);
+  };
+
   return (
-    <button className={classes.button}>
-      <span className={classes.icon}>
-        <CartIcon />
-      </span>
-      <span>Your cart</span>
-      <span className={classes.badge}>0</span>
-    </button>
+    <React.Fragment>
+      {showingCart && <ModalCart onCloseCart={closeCartHandler} />}
+      <button className={classes.button} onClick={clickCartButtonHandler}>
+        <span className={classes.icon}>
+          <CartIcon />
+        </span>
+        <span>Your cart</span>
+        <span className={classes.badge}>0</span>
+      </button>
+    </React.Fragment>
   );
 };
 

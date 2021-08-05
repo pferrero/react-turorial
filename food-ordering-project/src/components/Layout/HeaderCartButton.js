@@ -1,29 +1,46 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import CartIcon from "../Cart/CartIcon";
-import ModalCart from "../UI/ModalCart";
+import CartContext from "../../store/cart-context";
 import classes from "./HeaderCartButton.module.css";
 
 const HeaderCartButton = (props) => {
-  const [showingCart, setShowingCart] = useState(false);
+  const [btnIsHighlighted, setBtnIsHighlighted] = useState(false);
+  const cartCtx = useContext(CartContext);
 
-  const closeCartHandler = () => {
-    setShowingCart(false);
-  };
+  const { items } = cartCtx;
 
-  const clickCartButtonHandler = () => {
-    setShowingCart(true);
-  };
+  const numberOfCartItems = items.reduce((currItem, item) => {
+    return currItem + item.amount;
+  }, 0);
+
+  const btnClasses = `${classes.button} ${
+    btnIsHighlighted ? classes.bump : ""
+  }`;
+
+  useEffect(() => {
+    if (items.length === 0) {
+      return;
+    }
+    setBtnIsHighlighted(true);
+
+    const timer = setTimeout(() => {
+      setBtnIsHighlighted(false);
+    }, 300);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [items]);
 
   return (
     <React.Fragment>
-      {showingCart && <ModalCart onCloseCart={closeCartHandler} />}
-      <button className={classes.button} onClick={clickCartButtonHandler}>
+      <button className={btnClasses} onClick={props.onClick}>
         <span className={classes.icon}>
           <CartIcon />
         </span>
         <span>Your cart</span>
-        <span className={classes.badge}>0</span>
+        <span className={classes.badge}>{numberOfCartItems}</span>
       </button>
     </React.Fragment>
   );

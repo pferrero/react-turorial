@@ -1,7 +1,6 @@
 import { useEffect } from "react";
-import { Route, useParams, Link, useRouteMatch } from "react-router-dom";
+import { useParams, Link, Outlet } from "react-router-dom";
 
-import Comments from "../components/comments/Comments";
 import HighlightedQuote from "../components/quotes/HighlightedQuote";
 import LoadingSpinner from "../components/UI/LoadingSpinner";
 
@@ -9,10 +8,8 @@ import useHttp from "../hooks/use-http";
 import { getSingleQuote } from "../lib/api";
 
 const QuoteDetail = () => {
-  const match = useRouteMatch();
   const params = useParams();
   const { quoteId } = params;
-  console.log(match);
 
   const {
     sendRequest,
@@ -44,16 +41,7 @@ const QuoteDetail = () => {
   return (
     <section>
       <HighlightedQuote text={loadedQuote.text} author={loadedQuote.author} />
-      <Route path={`${match.path}`} exact>
-        <div className="centered">
-          <Link className="btn--flat" to={`${match.url}/comments`}>
-            Show comments
-          </Link>
-        </div>
-      </Route>
-      <Route path={`${match.path}/comments`}>
-        <Comments />
-      </Route>
+      <Outlet />
     </section>
   );
 };

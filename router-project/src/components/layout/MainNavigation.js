@@ -10,12 +10,20 @@ const MainNavigation = () => {
       <nav className={classes.nav}>
         <ul>
           <li>
-            <NavLink activeClassName={classes.active} to="/quotes">
+            <NavLink
+              className={({ isActive }) => (isActive ? classes.active : "")}
+              to="/quotes"
+            >
               Quotes
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName={classes.active} to="/newQuote">
+            <NavLink
+              activeClassName={({ isActive }) =>
+                isActive ? classes.active : ""
+              }
+              to="/newQuote"
+            >
               New Quote
             </NavLink>
           </li>

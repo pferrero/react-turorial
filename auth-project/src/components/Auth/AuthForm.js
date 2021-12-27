@@ -1,10 +1,17 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
+import { useHistory } from "react-router-dom";
+import AuthContext from "../../store/auth-context";
 
 import classes from "./AuthForm.module.css";
 
 const AuthForm = () => {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
+
+  const authCtx = useContext(AuthContext);
+
+  const history = useHistory();
+
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsloading] = useState(false);
 
@@ -19,36 +26,49 @@ const AuthForm = () => {
     const enteredPassword = passwordInputRef.current.value;
 
     setIsloading(true);
+    let url;
     if (isLogin) {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDgJH1QEN2g9bjhUAy2PneTOcKHpLn7NHo";
     } else {
-      fetch(
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDgJH1QEN2g9bjhUAy2PneTOcKHpLn7NHo",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email: enteredEmail,
-            password: enteredPassword,
-            returnSecureToken: true,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      ).then((res) => {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDgJH1QEN2g9bjhUAy2PneTOcKHpLn7NHo";
+    }
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
         setIsloading(false);
         if (res.ok) {
-          return res.json().then(console.log);
+          return res.json();
         } else {
           return res.json().then((data) => {
             let errorMessage = "Authentication failed";
             if (data && data.error && data.error.message) {
               errorMessage = data.error.message;
             }
-            alert(errorMessage);
+            throw new Error(errorMessage);
           });
         }
+      })
+      .then((data) => {
+        const expirationTime = new Date(
+          new Date().getTime() + +data.expiresIn * 1000
+        );
+        authCtx.login(data.idToken, expirationTime.toISOString());
+        history.push("/");
+      })
+      .catch((error) => {
+        alert(error.message);
       });
-    }
   };
 
   return (
